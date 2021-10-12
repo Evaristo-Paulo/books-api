@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Models\Book;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -46,5 +47,9 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function books (){
+        return $this->hasMany(Book::class, 'author_id', 'id');
     }
 }

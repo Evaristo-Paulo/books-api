@@ -22,7 +22,11 @@ Route::prefix('auth')->name('auth.')->middleware('api')->group(function () {
    route::post('/refresh', 'AuthController@refresh')->name('refresh');
 });
 
-Route::prefix('hotels')->name('hotels.')->middleware('api')->group(function () {
-    route::get('/', 'HotelController@list')->name('list');
+Route::prefix('books')->name('books.')->middleware('api')->group(function () {
+    route::get('/', 'BookController@list')->name('list');
+    route::post('/store', 'BookController@store')->name('store');
+    route::get('/{id}/show', 'BookController@show')->name('show');
+    route::put('/{id}/update', 'BookController@update')->name('update');
+    route::delete('/{id}/remove', 'BookController@delete')->name('delete');
  });
  

@@ -4,7 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Hotel extends Model
+class Book extends Model
 {
-    //
+    protected $guarded = [];
+
 }
+
+

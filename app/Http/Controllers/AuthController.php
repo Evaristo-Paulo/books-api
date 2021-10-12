@@ -21,18 +21,24 @@ class AuthController extends Controller
             $validator = Validator::make($request->all(), [
                 'email' => 'required|email',
                 'password' => 'required|min:6'
+            ], [
+                'email.required' => 'Campo E-mail é obrigatório',
+                'email.email' => 'Campo E-mail deve ser um e-mail válido',
+                'password.required' => 'Campo Senha é obrigatório',
+                'password.min' => 'Campo Senha deve ter no mínimo 6 caracteres',
             ]);
 
             if ($validator->fails()) {
-                return response()->json($validator->errors(), 400);
+                return response()->json(['error' => $validator->errors()], 422);
             }
 
             $token_validity = 24 * 60; //1 day
 
             $this->guard()->factory()->setTTL($token_validity);
+            $token = $this->guard()->attempt($validator->validated());
 
-            if ($token = $this->guard()->attempt($validator->validated())) {
-                return response()->json(['error' => 'Email or pasword incorrect'], 401);
+            if (!$token) {
+                return response()->json(['error' => 'Email or password incorrect'], 401);
             }
 
             return $this->respondWithToken($token);
@@ -45,12 +51,21 @@ class AuthController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required|between:2,100',
-                'email' => 'required!email|unique:users,email',
-                'password' => 'required|min:6'
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|min:6|confirmed'
+            ], [
+                'name.required' => 'Campo Nome completo é obrigatório',
+                'email.unique' => 'Este E-mail já está sendo utilizando',
+                'email.required' => 'Campo E-mail é obrigatório',
+                'email.email' => 'Campo E-mail deve ser um e-mail válido',
+                'name.between' => 'Campo Nome completo deve ter no mínimo 2 e no máximo 100 caracteres',
+                'password.required' => 'Campo Senha é obrigatório',
+                'password.min' => 'Campo Senha deve ter no mínimo 6 caracteres',
+                'password.confirmed' => 'Campo Senha deve ser igual ao campo password_confirmation',
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()], 400);
+                return response()->json(['error' => $validator->errors()], 422);
             }
 
             $user = [
@@ -77,6 +92,7 @@ class AuthController extends Controller
             return response()->json(['error' => $e], 400);
         }
     }
+
     public function logout()
     {
         $this->guard()->logout();
